@@ -24,33 +24,31 @@
 #L:  OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 #L:  WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ##:
-#h: Usage: $0 [DIRECTORY...]
+#h: Usage: $0 NAME-REGEX [HOSTNAME-REGEX]
 #h:
-#h: Creates zip backups of directories named `files-BASENAME`. Type
-#h: `backup-name -h` and `backup-name -V` for more information.
+#h: List saved backups in BACKUP_DIRECTORY: /r/backups/z, ~/BACKUPS, newest
+#h: first.
 ##:
 . backup-name
-. hzip
-backup_zip() {
-    for arg in "$@";do
-        if test @"${arg}" = @".";then
-            local arg="`pwd`"
-        fi
-        local a="`basename "${arg}" | sed 's|^\.*||g'`"
-        local zip="`backup_name -D -f .zip "files-${a}"`"
-        echo " .-- ${arg}" >&2
-        echo " '-> ${zip}" >&2
-        hzip -f zip -o "${zip}" "${arg}"
-        echo "Created: ${zip}" >&2
-    done
+backup_list() {
+    local BACKUP_SUFFIX1='[0-9][0-9\-]*'
+    local regex="`backup_name -D "$@"`"
+    if test ! -n "${regex}"; then
+        return 1
+    fi
+    find "${BACKUP_DIRECTORY}" -iregex "${regex}\\..*" | sort -r
 }
 SCRNAME="`basename "$0"`"
-if test @"${SCRNAME}" = @"backup-zip";then
-    if test -n "$1";then
-        backup_zip "$@"
-    else
-        sed -n 's/^ *#h: \{0,1\}//p' "$0" | sed "s|\\\$0|`basename $0`|g"
-        echo ""
-        sed -n 's/^ *#l: \{0,2\}//p' "$0"
-    fi
+if test @"${SCRNAME}" = @"backup-list";then
+    case "${1}" in
+        ''|-h|--help)
+            sed -n 's/^ *#h: \{0,1\}//p' "$0" | sed "s|\\\$0|${SCRNAME}|g"
+            echo ""
+            sed -n 's/^ *#l: \{0,2\}//p' "$0"
+            ;;
+        *)
+            backup_list "$@"
+            ;;
+    esac
 fi
+

@@ -4,19 +4,43 @@ Some scripts to make backups.
 
 ## Help
 
+backup-list
+
+    Usage: backup-list NAME-REGEX [HOSTNAME-REGEX]
+    
+    List saved backups in BACKUP_DIRECTORY: /r/backups/z, ~/BACKUPS, newest
+    first.
+
 backup-name
 
     Usage: backup-name [-VDf:] NAME [HOSTNAME]
     
-    Print a normalized filename for a backup with a
-    directory (-D) or suffix (-f SUFFIX).
+    Print a normalized filename for a backup.
+    
+    -V        : Show honored environment variables.
+    -D        : Prefix with a directory name. By default /r/backups/z
+                if it exists or ~/BACKUPS (created).
+    -f SUFFIX : For example '.zip'.
+
+backup-redis
+
+    Usage: backup-redis SSH [NAME]
+    
+    Create a backup of the Redis database.
+
+backup-rotate
+
+    Usage: backup-rotate [-m MAX] NAME-REGEX [HOSTNAME-REGEX]
+    
+    Delete backups named as with with `backup-name` if they exceed MAX
+    copies (by default 5).
 
 backup-zip
 
     Usage: backup-zip [DIRECTORY...]
     
-    This program creates zip backups of directories. Execute `backup-info show`
-    to see where are the files saved.
+    Creates zip backups of directories named `files-BASENAME`. Type
+    `backup-name -h` and `backup-name -V` for more information.
 
 hzip
 

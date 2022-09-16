@@ -24,57 +24,28 @@
 #L:  OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 #L:  WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ##:
-#h: Usage: $0 [-VDf:] NAME [HOSTNAME]
+#h: Usage: $0 [-m MAX] NAME-REGEX [HOSTNAME-REGEX]
 #h:
-#h: Print a normalized filename for a backup.
-#h:
-#h: -V        : Show honored environment variables.
-#h: -D        : Prefix with a directory name. By default /r/backups/z
-#h:             if it exists or ~/BACKUPS (created).
-#h: -f SUFFIX : For example '.zip'.
+#h: Delete backups named as with with `backup-name` if they exceed MAX
+#h: copies (by default 5).
 ##:
-backup_name() {
-    local OPTIND optopt opt_D= opt_f=
-    while getopts "VDf:" optopt; do
+. backup-list
+backup_rotate() {
+    local OPTIND optopt max=
+    ## Parse command line options.
+    while getopts "m:" optopt; do
         case $optopt in
-            V)  backup_name_show_variables; return 0;;
-            D)  opt_D=y;;
-            f)  opt_f="${OPTARG}";;
+            m)  max=$(( ${OPTARG} + 1));;
             \?) return 1;;
         esac
     done
     shift $(( $OPTIND - 1 ))
-    if test ! -n "$1"; then
-        echo "${SCRNAME}: error: Please specify a name." >&2
-        return 1
-    fi
-    local r="${opt_D:+${BACKUP_DIRECTORY}/}"
-    local r="${r}${1}--${BACKUP_SUFFIX1}--${2:-${BACKUP_SUFFIX2}}"
-    local r="${r}${opt_f}"
-    echo "${r}" | tr ' ' '-'
+    ## List backups to delete.
+    backup_list "$@" | tail -n +"${max:-5}" | xargs rm -vf
 }
-backup_name_show_variables() {
-    printf '%-20s : %s\n'                         \
-           BACKUP_DIRECTORY "${BACKUP_DIRECTORY}" \
-           BACKUP_SUFFIX1   "${BACKUP_SUFFIX1}"   \
-           BACKUP_SUFFIX2   "${BACKUP_SUFFIX2}"
-}
-backup_name_calc_variables() {
-    if test -n "${BACKUP_DIRECTORY}"; then
-        true
-    elif test -d "/r/backups/z"; then
-        BACKUP_DIRECTORY="/r/backups/z"
-    else
-        mkdir -p "${HOME}/BACKUPS"
-        BACKUP_DIRECTORY="${HOME}/BACKUPS"
-    fi
-    BACKUP_SUFFIX1="${BACKUP_SUFFIX1:-`date +%Y-%m-%d-%H%M`}"
-    BACKUP_SUFFIX2="${BACKUP_SUFFIX2:-`uname -n`}"
-}
-## -----------------------------------------------------------------------------
-backup_name_calc_variables
+## -------------------------------------------------------------------------
 SCRNAME="`basename "$0"`"
-if test @"${SCRNAME}" = @"backup-name"; then
+if test @"${SCRNAME}" = @"backup-rotate";then
     case "${1}" in
         ''|-h|--help)
             sed -n 's/^ *#h: \{0,1\}//p' "$0" | sed "s|\\\$0|${SCRNAME}|g"
@@ -82,7 +53,7 @@ if test @"${SCRNAME}" = @"backup-name"; then
             sed -n 's/^ *#l: \{0,2\}//p' "$0"
             ;;
         *)
-            backup_name "$@"
+            backup_rotate "$@"
             ;;
     esac
 fi

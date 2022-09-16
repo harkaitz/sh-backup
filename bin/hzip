@@ -50,21 +50,21 @@ hzip() {
     ## Check arguments.
     if test ! -n "$1";then
 	return 0
-    elif test ! -n "${format}" && test ! -n "${output}";then
+    elif test ! -n "${format}" && test ! -n "${output}"; then
 	echo "hzip: error: You need to specify at least an output or a format." >&2
 	return 1
-    elif test   -n "${format}" && test ! -n "${output}";then
+    elif test   -n "${format}" && test ! -n "${output}"; then
 	true
-    elif test ! -n "${format}" && test   -n "${output}";then
+    elif test ! -n "${format}" && test   -n "${output}"; then
         local format="`basename "${output}" | sed -n 's|^.*\.tar|tar|p'`"
         local format="${format:-`basename "${output}" | sed 's|^.*\.||'`}"
     fi
     
     ## Compress each file separatelly.
-    if test -n "${output}";then
+    if test -n "${output}"; then
 	hzip_compress "${format}" "${output}" "$@"
     else
-	for arg in "$@";do
+	for arg in "$@"; do
 	    hzip_compress "${format}" "${arg}.${format}" "${arg}"
 	done
     fi
@@ -74,7 +74,7 @@ hzip_compress() { # FORMAT OUTPUT PASSWORD FILES...
     shift 2
     local tar="`echo "${output}" | sed 's|\.tar\..*|\.tar|'`"
     mkdir -p "`dirname "${output}"`"
-    if test -n "${HZIP_PASSWORD}";then
+    if test -n "${HZIP_PASSWORD}"; then
 	case "${format}" in
 	    *tar)     hzip_run tar cf "${output}" "$@";;
 	    *tar.gz)  hzip_run tar cfz "${output}" "$@";;
