@@ -63,7 +63,7 @@ backup_redis() {
 
     m="`md5sum "${f}" | cut -d " " -f 1`"
 
-    echo "backup: ${n}: Checksum $m"         >&2
+    echo "backup: ${n}: Checksum $m"      >&2
     echo "backup: ${n}: Sending ${f} ..." >&2
     cat "${f}"
     ' > "${out}.tmp"
