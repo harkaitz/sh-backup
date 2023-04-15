@@ -13,14 +13,21 @@ backup-list
 
 backup-name
 
-    Usage: backup-name [-VDf:] NAME [HOSTNAME]
+    Usage: backup-name [-VDf:] NAME|PATH [HOSTNAME]
     
-    Print a normalized filename for a backup.
+    Search the backups directory, in order (1) and print a name
+    for a backup file.
     
-    -V        : Show honored environment variables.
-    -D        : Prefix with a directory name. By default /r/backups/z
-                if it exists or ~/BACKUPS (created).
-    -f SUFFIX : For example '.zip'.
+    The search order is:
+    
+        (1) "/media/$USER/BACKUPS/z".
+        (2) ~/BACKUPS (created)
+    
+    Command line arguments:
+    
+        -V        : Show honored environment variables.
+        -D        : Prefix with a directory name (1).
+        -f SUFFIX : The suffix for the backup, ie '.zip'.
 
 backup-redis
 
@@ -59,4 +66,3 @@ one of the following links:
 
 1. [gemini://harkadev.com/oss/](gemini://harkadev.com/oss/)
 2. [https://harkadev.com/oss/](https://harkadev.com/oss/)
-
