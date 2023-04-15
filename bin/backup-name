@@ -24,14 +24,21 @@
 #L:  OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 #L:  WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ##:
-#h: Usage: $0 [-VDf:] NAME [HOSTNAME]
+#h: Usage: $0 [-VDf:] NAME|PATH [HOSTNAME]
 #h:
-#h: Print a normalized filename for a backup.
+#h: Search the backups directory, in order (1) and print a name
+#h: for a backup file.
 #h:
-#h: -V        : Show honored environment variables.
-#h: -D        : Prefix with a directory name. By default /r/backups/z
-#h:             if it exists or ~/BACKUPS (created).
-#h: -f SUFFIX : For example '.zip'.
+#h: The search order is:
+#h:
+#h:     (1) "/media/$USER/BACKUPS/z".
+#h:     (2) ~/BACKUPS (created)
+#h:
+#h: Command line arguments:
+#h:
+#h:     -V        : Show honored environment variables.
+#h:     -D        : Prefix with a directory name (1).
+#h:     -f SUFFIX : The suffix for the backup, ie '.zip'.
 ##:
 backup_name() {
     local OPTIND optopt opt_D= opt_f=
@@ -49,21 +56,22 @@ backup_name() {
         return 1
     fi
     local r="${opt_D:+${BACKUP_DIRECTORY}/}"
-    local r="${r}${1}--${BACKUP_SUFFIX1}--${2:-${BACKUP_SUFFIX2}}"
+    local r="${r}`basename ${1}`--${BACKUP_SUFFIX1}--${2:-${BACKUP_SUFFIX2}}"
     local r="${r}${opt_f}"
     echo "${r}" | tr ' ' '-'
 }
 backup_name_show_variables() {
-    printf '%-20s : %s\n'                         \
-           BACKUP_DIRECTORY "${BACKUP_DIRECTORY}" \
-           BACKUP_SUFFIX1   "${BACKUP_SUFFIX1}"   \
-           BACKUP_SUFFIX2   "${BACKUP_SUFFIX2}"
+    cat <<-EOF
+	BACKUP_DIRECTORY : ${BACKUP_DIRECTORY}
+	BACKUP_SUFFIX1   : ${BACKUP_SUFFIX1}
+	BACKUP_SUFFIX2   : ${BACKUP_SUFFIX2}
+	EOF
 }
 backup_name_calc_variables() {
     if test -n "${BACKUP_DIRECTORY}"; then
         true
-    elif test -d "/r/backups/z"; then
-        BACKUP_DIRECTORY="/r/backups/z"
+    elif test -d "/media/`whoami`/BACKUPS/z"; then
+        BACKUP_DIRECTORY="/media/`whoami`/BACKUPS/z"
     else
         mkdir -p "${HOME}/BACKUPS"
         BACKUP_DIRECTORY="${HOME}/BACKUPS"
