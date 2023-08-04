@@ -1,10 +1,11 @@
-DESTDIR=
-PREFIX =/usr/local
+PROJECT=sh-backup
+VERSION=1.0.0
+PREFIX=/usr/local
 all:
 clean:
 install:
 
-## -- install-sh --
+## -- BLOCK:sh --
 install: install-sh
 install-sh:
 	mkdir -p $(DESTDIR)$(PREFIX)/bin
@@ -14,10 +15,13 @@ install-sh:
 	cp bin/backup-zip       $(DESTDIR)$(PREFIX)/bin
 	cp bin/backup-redis     $(DESTDIR)$(PREFIX)/bin
 	cp bin/hzip             $(DESTDIR)$(PREFIX)/bin
-## -- install-sh --
-## -- license --
+## -- BLOCK:sh --
+## -- BLOCK:license --
 install: install-license
-install-license: LICENSE
-	mkdir -p $(DESTDIR)$(PREFIX)/share/doc/sh-backup
-	cp LICENSE $(DESTDIR)$(PREFIX)/share/doc/sh-backup
-## -- license --
+install-license: 
+	mkdir -p $(DESTDIR)$(PREFIX)/share/doc/$(PROJECT)
+	cp LICENSE README.md $(DESTDIR)$(PREFIX)/share/doc/$(PROJECT)
+update: update-license
+update-license:
+	ssnip README.md
+## -- BLOCK:license --

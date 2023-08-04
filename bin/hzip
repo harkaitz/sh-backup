@@ -1,25 +1,4 @@
 #!/bin/sh
-#L:  MIT License
-#L:
-#l:  Copyright (c) 2023 Harkaitz Agirre, harkaitz.aguirre@gmail.com
-#L:
-#L:  Permission is hereby granted, free of charge, to any person obtaining a copy
-#L:  of this software and associated documentation files (the "Software"), to deal
-#L:  in the Software without restriction, including without limitation the rights
-#L:  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-#L:  copies of the Software, and to permit persons to whom the Software is
-#L:  furnished to do so, subject to the following conditions:
-#L:
-#L:  The above copyright notice and this permission notice shall be included in all
-#L:  copies or substantial portions of the Software.
-#L:
-#L:  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-#L:  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-#L:  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-#L:  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-#L:  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-#L:  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-#L:  SOFTWARE.
 ##:
 #h: Usage: hzip [-v][-p PASSWORD][-f tar.gz|tar.zip|zip][-o FILE] FILES...
 #h:
@@ -37,21 +16,21 @@ hzip() {
         case $optopt in
             v)  local VERBOSE="y";;
             p)  local HZIP_PASSWORD="${OPTARG}";;
-	    f)  local format="${OPTARG}"  ;;
-	    o)  local output="${OPTARG}"  ;;
+            f)  local format="${OPTARG}"  ;;
+            o)  local output="${OPTARG}"  ;;
             \?) return 1;;
         esac
     done
     shift $(( $OPTIND - 1 ))
     
     ## Check arguments.
-    if test ! -n "$1";then
-	return 0
+    if test ! -n "$1"; then
+        return 0
     elif test ! -n "${format}" && test ! -n "${output}"; then
-	echo "hzip: error: You need to specify at least an output or a format." >&2
-	return 1
+        echo "hzip: error: You need to specify at least an output or a format." >&2
+        return 1
     elif test   -n "${format}" && test ! -n "${output}"; then
-	true
+        true
     elif test ! -n "${format}" && test   -n "${output}"; then
         local format="`basename "${output}" | sed -n 's|^.*\.tar|tar|p'`"
         local format="${format:-`basename "${output}" | sed 's|^.*\.||'`}"
@@ -59,11 +38,11 @@ hzip() {
     
     ## Compress each file separatelly.
     if test -n "${output}"; then
-	hzip_compress "${format}" "${output}" "$@"
+        hzip_compress "${format}" "${output}" "$@"
     else
-	for arg in "$@"; do
-	    hzip_compress "${format}" "${arg}.${format}" "${arg}"
-	done
+        for arg in "$@"; do
+            hzip_compress "${format}" "${arg}.${format}" "${arg}"
+        done
     fi
 }
 hzip_compress() { # FORMAT OUTPUT PASSWORD FILES...
@@ -72,35 +51,35 @@ hzip_compress() { # FORMAT OUTPUT PASSWORD FILES...
     local tar="`echo "${output}" | sed 's|\.tar\..*|\.tar|'`"
     mkdir -p "`dirname "${output}"`"
     if test -n "${HZIP_PASSWORD}"; then
-	case "${format}" in
-	    *tar)     hzip_run tar cf "${output}" "$@";;
-	    *tar.gz)  hzip_run tar cfz "${output}" "$@";;
-	    *tar.zip) hzip_run tar cf  "${tar}" "$@"
-		      rm -vf "${output}"
-		      hzip_run 7z u -p"${HZIP_PASSWORD}" -snl "${output}" "$tar"
-		      rm -vf "${tar}";;
-	    *)        if ! which 7z >/dev/null 2>&1;then
+        case "${format}" in
+            *tar)     hzip_run tar cf "${output}" "$@";;
+            *tar.gz)  hzip_run tar cfz "${output}" "$@";;
+            *tar.zip) hzip_run tar cf  "${tar}" "$@"
+                      rm -vf "${output}"
+                      hzip_run 7z u -p"${HZIP_PASSWORD}" -snl "${output}" "$tar"
+                      rm -vf "${tar}";;
+            *)        if ! which 7z >/dev/null 2>&1;then
                           echo "error: Please install 7z." >&2
                           return 1
                       fi
                       rm -vf "${output}"
-	              hzip_run 7z u -p"${HZIP_PASSWORD}" -snl "${output}" "$@";;
-	esac
+                      hzip_run 7z u -p"${HZIP_PASSWORD}" -snl "${output}" "$@";;
+        esac
     else
-	case "${format}" in
-	    *tar)     hzip_run tar cf "${output}" "$@";;
-	    *tar.gz)  hzip_run tar cfz "${output}" "$@";;
-	    *tar.zip) hzip_run tar cf  "${tar}" "$@"
-		      rm -vf "${output}"
-		      hzip_run 7z u -snl "${output}" "$tar"
-		      rm -vf "${tar}";;
-	    *)        if ! which 7z >/dev/null 2>&1;then
+        case "${format}" in
+            *tar)     hzip_run tar cf "${output}" "$@";;
+            *tar.gz)  hzip_run tar cfz "${output}" "$@";;
+            *tar.zip) hzip_run tar cf  "${tar}" "$@"
+                      rm -vf "${output}"
+                      hzip_run 7z u -snl "${output}" "$tar"
+                      rm -vf "${tar}";;
+            *)        if ! which 7z >/dev/null 2>&1;then
                           echo "error: Please install 7z." >&2
                           return 1
                       fi
                       rm -vf "${output}"
-	              hzip_run 7z u -snl "${output}" "$@";;
-	esac
+                      hzip_run 7z u -snl "${output}" "$@";;
+        esac
     fi
 }
 hzip_run() {
@@ -108,14 +87,10 @@ hzip_run() {
     "$@"
 }
 
-## -----------------------------------------------------------------------------
-SCRNAME="`basename "$0"`"
-if test @"${SCRNAME}" = @"hzip";then
-    if test -n "$1";then
-	hzip "$@"
-    else
-	sed -n 's/^ *#h: \{0,1\}//p' "$0" | sed "s|\\\$0|`basename $0`|g"
-	echo ""
-	sed -n 's/^ *#l: \{0,2\}//p' "$0"
-    fi
+## -------------------------------------------------------------------
+if test @"$(basename "$0")" = @"hzip"; then
+    case "${1}" in
+        ''|-h|--help) sed -n 's/^ *#h: \{0,1\}//p' "$0" ;;
+        *)            hzip "$@"; exit 0;;
+    esac
 fi
