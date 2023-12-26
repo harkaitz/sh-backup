@@ -1,18 +1,18 @@
 #!/bin/sh -e
 ##:
-#h: Usage: backup-list [NAME-REGEX [HOSTNAME-REGEX]]
+#h: Usage: backup-list [WILDCARD [HOSTNAME-REGEX]]
 #h:
 #h: List backups stored in the current machine. See "backup-name(1)" to
 #h: know where and with which scheme to save backups.
 ##:
 . backup-name
 backup_list() {
-    local BACKUP_SUFFIX1='[0-9][0-9\-]*'
-    local regex="$(backup_name -D "${1:-.*}" "$2")"
-    if test ! -n "${regex}"; then
+    local BACKUP_SUFFIX1='*'
+    local wildcard="$(backup_name "${1:-*}" "$2")"
+    if test ! -n "${wildcard}"; then
         return 1
     fi
-    find "${BACKUP_DIRECTORY}" -iregex "${regex}\\..*" | sort -r
+    find "${BACKUP_DIRECTORY}" -name "${wildcard}.*" | sort -r
 }
 ## -------------------------------------------------------------------
 if test @"$(basename "$0")" = @"backup-list";then

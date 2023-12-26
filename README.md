@@ -8,14 +8,17 @@ Some scripts to make backups.
 You can install this programs by running the following command:
 
 ```
-curl -sSL https://github.com/harkaitz/sh-backup/releases/download/1.0.0/install.sh | sudo bash
+GNU/Linux:
+ curl -sSL https://github.com/harkaitz/sh-backup/releases/download/1.0.0/install.sh | sudo bash
+OpenBSD:
+ ftp -V -o - https://github.com/harkaitz/sh-backup/releases/download/1.0.0/install.sh | doas ksh
 ```
 
 ## Help
 
 backup-list
 
-    Usage: backup-list [NAME-REGEX [HOSTNAME-REGEX]]
+    Usage: backup-list [WILDCARD [HOSTNAME-REGEX]]
     
     List backups stored in the current machine. See "backup-name(1)" to
     know where and with which scheme to save backups.
@@ -36,6 +39,13 @@ backup-name
       (2) ~/BACKUPS (created if it does not exist).
     
     Environment variables: BACKUP_DIRECTORY, BACKUP_SUFFIX{1 (date), 2 (host)}
+
+backup-tar
+
+    Usage: backup-tar [DIRECTORY...]
+    
+    Creates tar.gz backups of directories named `files-BASENAME`. Type
+    `backup-name -h` and `backup-name -V` for more information.
 
 backup-zip
 

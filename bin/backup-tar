@@ -1,0 +1,28 @@
+#!/bin/sh -e
+##:
+#h: Usage: backup-tar [DIRECTORY...]
+#h:
+#h: Creates tar.gz backups of directories named `files-BASENAME`. Type
+#h: `backup-name -h` and `backup-name -V` for more information.
+##:
+. backup-name
+. hzip
+backup_tar() {
+    for arg in "$@"; do
+        if test @"${arg}" = @".";then
+            local arg="$(pwd)"
+        fi
+        local a="$(basename "${arg}" | sed 's|^\.*||g')"
+        local tar="$(backup_name -D -f .tar.gz "files-${a}")"
+        echo " .-- ${arg}" >&2
+        echo " '-> ${tar}" >&2
+        hzip -f tar.gz -o "${tar}" "${arg}"
+        echo "Created: ${tar}" >&2
+    done
+}
+if test @"$(basename "$0")" = @"backup-tar"; then
+    case "${1}" in
+        ''|-h|--help) sed -n 's/^ *#h: \{0,1\}//p' "$0" ;;
+        *)            backup_tar "$@"; exit 0;;
+    esac
+fi
