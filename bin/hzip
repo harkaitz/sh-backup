@@ -9,9 +9,9 @@
 #h: not tt creates an archive for each specified argument.
 ##:
 hzip() {
-    local format= output=
+    local OPTIND optopt ops= format= output=
+    
     ## Parse command line.
-    local OPTIND optopt= ops=
     while getopts "vp:f:o:" optopt; do
         case $optopt in
             v)  local VERBOSE="y";;
@@ -86,7 +86,6 @@ hzip_run() {
     test ! -n "${VERBOSE}" || echo "$*" >&2
     "$@"
 }
-
 ## -------------------------------------------------------------------
 if test @"$(basename "$0")" = @"hzip"; then
     case "${1}" in

@@ -12,8 +12,8 @@ backup_zip() {
         if test @"${arg}" = @".";then
             local arg="`pwd`"
         fi
-        local a="`basename "${arg}" | sed 's|^\.*||g'`"
-        local zip="`backup_name -D -f .zip "files-${a}"`"
+        local a="$(basename "${arg}" | sed 's|^\.*||g')"
+        local zip="$(backup_name -D -f .zip "files-${a}")"
         echo " .-- ${arg}" >&2
         echo " '-> ${zip}" >&2
         hzip -f zip -o "${zip}" "${arg}"

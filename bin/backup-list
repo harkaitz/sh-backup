@@ -1,23 +1,24 @@
 #!/bin/sh -e
 ##:
-#h: Usage: backup-list NAME-REGEX [HOSTNAME-REGEX]
+#h: Usage: backup-list [NAME-REGEX [HOSTNAME-REGEX]]
 #h:
-#h: List saved backups in BACKUP_DIRECTORY: /r/backups/z, ~/BACKUPS, newest
-#h: first.
+#h: List backups stored in the current machine. See "backup-name(1)" to
+#h: know where and with which scheme to save backups.
 ##:
 . backup-name
 backup_list() {
     local BACKUP_SUFFIX1='[0-9][0-9\-]*'
-    local regex="`backup_name -D "$@"`"
+    local regex="$(backup_name -D "${1:-.*}" "$2")"
     if test ! -n "${regex}"; then
         return 1
     fi
     find "${BACKUP_DIRECTORY}" -iregex "${regex}\\..*" | sort -r
 }
+## -------------------------------------------------------------------
 if test @"$(basename "$0")" = @"backup-list";then
     case "${1}" in
-        ''|-h|--help) sed -n 's/^ *#h: \{0,1\}//p' "$0" ;;
-        *)            backup_list "$@"; exit 0;;
+        -h|--help) sed -n 's/^ *#h: \{0,1\}//p' "$0" ;;
+        *)         backup_list "$@"; exit 0;;
     esac
 fi
 

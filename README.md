@@ -1,46 +1,41 @@
-# BACKUP
+BACKUP
+======
 
 Some scripts to make backups.
+
+## Install
+
+You can install this programs by running the following command:
+
+```
+curl -sSL https://github.com/harkaitz/sh-backup/releases/download/1.0.0/install.sh | sudo bash
+```
 
 ## Help
 
 backup-list
 
-    Usage: backup-list NAME-REGEX [HOSTNAME-REGEX]
+    Usage: backup-list [NAME-REGEX [HOSTNAME-REGEX]]
     
-    List saved backups in BACKUP_DIRECTORY: /r/backups/z, ~/BACKUPS, newest
-    first.
+    List backups stored in the current machine. See "backup-name(1)" to
+    know where and with which scheme to save backups.
 
 backup-name
 
-    Usage: backup-name [-VDf:] NAME|PATH [HOSTNAME]
+    Usage: backup-name [-V][-D][-f SUFFIX] NAME|PATH [HOSTNAME]
     
-    Search the backups directory, in order (1) and print a name
-    for a backup file.
+    Select a name for a backup file. If "-D" is given a directory is
+    selected and printed with the name. If "-f" is given the suffix is
+    appended to the name.
     
-    The search order is:
+    If you specify a full path, the name is the basename of the path.
     
-        (1) "/media/$USER/BACKUPS/z".
-        (2) ~/BACKUPS (created)
+    Directory selection order:
     
-    Command line arguments:
+      (1) "/media/$USER/BACKUPS/z".
+      (2) ~/BACKUPS (created if it does not exist).
     
-        -V        : Show honored environment variables.
-        -D        : Prefix with a directory name (1).
-        -f SUFFIX : The suffix for the backup, ie '.zip'.
-
-backup-redis
-
-    Usage: backup-redis SSH [NAME]
-    
-    Create a backup of the Redis database.
-
-backup-rotate
-
-    Usage: backup-rotate [-m MAX] NAME-REGEX [HOSTNAME-REGEX]
-    
-    Delete backups named as with with `backup-name` if they exceed MAX
-    copies (by default 5).
+    Environment variables: BACKUP_DIRECTORY, BACKUP_SUFFIX{1 (date), 2 (host)}
 
 backup-zip
 

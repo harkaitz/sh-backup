@@ -1,20 +1,19 @@
 #!/bin/sh -e
 ##:
-#h: Usage: backup-name [-VDf:] NAME|PATH [HOSTNAME]
+#h: Usage: backup-name [-V][-D][-f SUFFIX] NAME|PATH [HOSTNAME]
 #h:
-#h: Search the backups directory, in order (1) and print a name
-#h: for a backup file.
+#h: Select a name for a backup file. If "-D" is given a directory is
+#h: selected and printed with the name. If "-f" is given the suffix is
+#h: appended to the name.
 #h:
-#h: The search order is:
+#h: If you specify a full path, the name is the basename of the path.
 #h:
-#h:     (1) "/media/$USER/BACKUPS/z".
-#h:     (2) ~/BACKUPS (created)
+#h: Directory selection order:
 #h:
-#h: Command line arguments:
+#h:   (1) "/media/$USER/BACKUPS/z".
+#h:   (2) ~/BACKUPS (created if it does not exist).
 #h:
-#h:     -V        : Show honored environment variables.
-#h:     -D        : Prefix with a directory name (1).
-#h:     -f SUFFIX : The suffix for the backup, ie '.zip'.
+#h: Environment variables: BACKUP_DIRECTORY, BACKUP_SUFFIX{1 (date), 2 (host)}
 ##:
 backup_name() {
     local OPTIND optopt opt_D= opt_f=
@@ -32,7 +31,7 @@ backup_name() {
         return 1
     fi
     local r="${opt_D:+${BACKUP_DIRECTORY}/}"
-    local r="${r}`basename ${1}`--${BACKUP_SUFFIX1}--${2:-${BACKUP_SUFFIX2}}"
+    local r="${r}$(basename "${1}")--${BACKUP_SUFFIX1}--${2:-${BACKUP_SUFFIX2}}"
     local r="${r}${opt_f}"
     echo "${r}" | tr ' ' '-'
 }
@@ -46,16 +45,16 @@ backup_name_show_variables() {
 backup_name_calc_variables() {
     if test -n "${BACKUP_DIRECTORY}"; then
         true
-    elif test -d "/media/`whoami`/BACKUPS/z"; then
-        BACKUP_DIRECTORY="/media/`whoami`/BACKUPS/z"
+    elif test -d "/media/$(whoami)/BACKUPS/z"; then
+        BACKUP_DIRECTORY="/media/$(whoami)/BACKUPS/z"
     else
         mkdir -p "${HOME}/BACKUPS"
         BACKUP_DIRECTORY="${HOME}/BACKUPS"
     fi
-    BACKUP_SUFFIX1="${BACKUP_SUFFIX1:-`date +%Y-%m-%d-%H%M`}"
-    BACKUP_SUFFIX2="${BACKUP_SUFFIX2:-`uname -n`}"
+    BACKUP_SUFFIX1="${BACKUP_SUFFIX1:-$(date +%Y-%m-%d-%H%M)}"
+    BACKUP_SUFFIX2="${BACKUP_SUFFIX2:-$(uname -n)}"
 }
-## -----------------------------------------------------------------------------
+## -------------------------------------------------------------------
 backup_name_calc_variables
 if test @"$(basename "$0")" = @"backup-name"; then
     case "${1}" in
